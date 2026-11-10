@@ -212,7 +212,7 @@ html.terkunci .hero,html.terkunci main{filter:blur(3px);pointer-events:none;user
   var OTP_SECRET='4xtrqxba76245zi37m7juhvegvtxs3ol';
   var N=6,PERIODE=30,JENDELA=1; /* 6 digit, ganti tiap 30 detik, toleransi +/-1 periode */
   var DURASI=30*60*1000;        /* lama sesi: 30 menit sejak login */
-  var LOGIN_AKTIF=true;         /* true = login OTP wajib | false = login dinonaktifkan, halaman langsung terbuka */
+  var LOGIN_AKTIF=false;         /* true = login OTP wajib | false = login dinonaktifkan, halaman langsung terbuka */
   var MAKS_SALAH=5,TUNGGU=30000;
   /* --- TOTP (RFC 6238), tanpa library --- */
   function b32(s){
