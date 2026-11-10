@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Source Aplikasi Alfamart</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;
+--bg:#f2f4f8;--surface:#fff;--ink:#0c1b2e;--muted:#566780;--line:#d9e0ea;--hero:#0a1a2f;--on-accent:#fff;
+--android:#17804c;--dotnet:#512bd4;--lainnya:#b4620f;--bahaya:#c0392b;--accent:var(--android);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1220;--surface:#111c30;--ink:#e9eef7;--muted:#9aa9c2;--line:#243350;--hero:#0f2442;--on-accent:#0a1220;--android:#4fd88e;--dotnet:#a48dff;--lainnya:#f0a45a;--bahaya:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a1220;--surface:#111c30;--ink:#e9eef7;--muted:#9aa9c2;--line:#243350;--hero:#0f2442;--on-accent:#0a1220;--android:#4fd88e;--dotnet:#a48dff;--lainnya:#f0a45a;--bahaya:#ff8a80;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{min-height:100%;font-size:12px}
+body{margin:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+
+/* ===== HERO ===== */
+.hero{position:relative;color:#fff;background:radial-gradient(620px 300px at 85% 0,color-mix(in srgb,var(--accent) 40%,transparent),transparent),linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/44px 44px,var(--hero)}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:28px;background:var(--bg);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 28'%3E%3Cpath d='M0 28V14Q20 0 40 14T80 14V28Z'/%3E%3C/svg%3E") bottom/80px 28px repeat-x;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 28'%3E%3Cpath d='M0 28V14Q20 0 40 14T80 14V28Z'/%3E%3C/svg%3E") bottom/80px 28px repeat-x}
+.wrap{max-width:680px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top,0px)) 20px 48px}
+h1{margin:0 0 10px;font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.02;font-weight:800;letter-spacing:-.035em;max-width:14ch}
+.sub{display:inline-block;margin:0;padding:4px 11px;border:1px solid rgba(255,255,255,.28);border-radius:999px;color:#d3dff2;font-size:.85rem}
+main{position:relative;max-width:680px;margin:-22px auto 0;padding:0 20px 36px}
+
+/* ===== TAB UTAMA ===== */
+#tabs-utama{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tabwrap{position:relative}
+#tab-android{--tc:var(--android)}#tab-dotnet{--tc:var(--dotnet)}#tab-lainnya{--tc:var(--lainnya)}
+#tabs-utama [role="tab"]{display:flex;align-items:center;justify-content:center;width:100%;padding:10px 6px;font:inherit;font-weight:800;font-size:.95rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--tc);border-radius:10px;cursor:pointer;box-shadow:0 8px 22px rgba(10,26,47,.1);transition:background .15s,color .15s;white-space:nowrap}
+#tabs-utama [role="tab"]:hover{background:color-mix(in srgb,var(--tc) 10%,var(--surface))}
+#tabs-utama [role="tab"][aria-selected="true"]{background:var(--tc);border-color:var(--tc);color:var(--on-accent)}
+[role="tab"]:focus-visible,.dropdown button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.caret{margin-left:8px;font-size:.65em;transition:transform .15s}
+[aria-expanded="true"] .caret{transform:rotate(180deg)}
+
+/* ===== DROPDOWN ===== */
+.dropdown{position:absolute;top:100%;left:0;right:0;min-width:150px;z-index:20;margin-top:10px;padding:8px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 44px rgba(10,26,47,.28)}
+.dropdown[hidden]{display:none}
+.dropdown button{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;font:inherit;font-size:.95rem;text-align:left;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);background:none;border:0;border-radius:9px;cursor:pointer}
+.dropdown button::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--line);transform:rotate(45deg)}
+.dropdown button:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.dropdown button[aria-current="true"]{font-weight:800}
+.dropdown button[aria-current="true"]::before{background:var(--accent)}
+
+/* ===== PANEL ===== */
+[role="tabpanel"][hidden],.subpanel[hidden]{display:none}
+section[role="tabpanel"]:not([hidden]){display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:28px;padding-top:22px}
+.subjudul{grid-column:1;grid-row:1;margin:0;font-size:clamp(1.5rem,4vw,2rem);font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.subjudul::after{content:"";display:block;width:34px;height:4px;margin-top:10px;border-radius:3px;background:var(--accent)}
+#panel-android .subjudul,#panel-dotnet .subjudul,#panel-lainnya .subjudul{text-transform:uppercase}
+.intro{grid-column:1;grid-row:2;margin:16px 0 0;color:var(--muted);max-width:30ch}
+.subpanel,section[role="tabpanel"]>ul{grid-column:2;grid-row:1/span 3}
+ul{list-style:none;margin:0;padding:0;border-top:4px solid var(--accent)}
+li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:4px 28px;padding:10px 0;border-bottom:1px solid var(--line)}
+li strong{font-size:1.05rem;font-weight:800}
+li strong::before{content:"";display:inline-block;width:9px;height:9px;margin-right:12px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+li span{color:var(--muted)}
+li:hover strong{color:var(--accent)}
+li.file{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+li.file span{display:block}
+li.kosong{grid-template-columns:minmax(0,1fr)}
+@media (prefers-reduced-motion:no-preference){section[role="tabpanel"]:not([hidden]){animation:masuk .25s ease-out}@keyframes masuk{from{opacity:0}to{opacity:1}}}
+@media (max-width:760px){
+  section[role="tabpanel"]:not([hidden]){grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}
+  .subpanel,section[role="tabpanel"]>ul{grid-column:1;grid-row:3;margin-top:28px}
+  li{grid-template-columns:minmax(0,1fr)}
+  li.file{grid-template-columns:minmax(0,1fr) auto}
+}
+@media (max-width:560px){.caret{margin-left:4px}}
+
+/* ===== TOMBOL UNDUH / HAPUS / UNGGAH ===== */
+.unduh{padding:6px 12px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:800;text-decoration:none;white-space:nowrap}
+.unduh:hover{filter:brightness(1.1)}
+.unduh:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+button.unduh{border:0;font:inherit;font-weight:800;cursor:pointer}
+button.unduh:disabled{opacity:.6;cursor:wait}
+.aksi{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.hapus{display:none;padding:6px 12px;border:1px solid var(--bahaya);border-radius:999px;background:none;color:var(--bahaya);font:inherit;font-weight:800;cursor:pointer}
+[data-admin="1"] .hapus{display:inline-block}
+.hapus:hover{background:color-mix(in srgb,var(--bahaya) 12%,transparent)}
+.hapus:disabled{opacity:.6;cursor:wait}
+.hapus:focus-visible{outline:3px solid var(--bahaya);outline-offset:3px}
+.unggah{margin:0 0 14px}
+.unggah-btn{font:inherit;font-weight:800;padding:8px 14px;border-radius:999px;border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer}
+.unggah-btn:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.unggah-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.unggah-form[hidden]{display:none}
+.unggah-form input{font:inherit;max-width:100%;color:var(--ink)}
+.unggah-form input[type="password"]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.unggah-status{width:100%;font-size:.9rem;color:var(--muted)}
+.unggah-btn:focus-visible,.unggah-form input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* ===== BAR ADMIN ===== */
+.admin-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;margin-bottom:12px;font-size:.9rem}
+.admin-bar .abtn{font:inherit;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
+.admin-bar .abtn:hover{background:rgba(255,255,255,.18)}
+.admin-bar .abtn:disabled{opacity:.6;cursor:wait}
+.alabel{color:#d3dff2;font-weight:600}
+.sesi-waktu{color:#d3dff2;font-weight:600;font-variant-numeric:tabular-nums}
+.sesi-waktu.sedikit{color:#ffd7a8}
+.admin-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;width:100%}
+.admin-form input{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;max-width:100%}
+.admin-form input::placeholder{color:#a9bbd6}
+.admin-st{width:100%;text-align:right;color:#ffd7a8;min-height:1.2em}
+.admin-bar [hidden],.admin-form[hidden]{display:none!important}
+.admin-bar .abtn:focus-visible,.admin-form input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+/* ===== LOGIN PIN ===== */
+:root{--pin:#0f7a6d;--pin-on:#fff;--pin-soft:#dff3ef;--pin-line:#e3e8ee;--pin-box:#f7f9fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pin:#2fb8a6;--pin-on:#0a1220;--pin-soft:#12332f;--pin-line:#243350;--pin-box:#0d1729}}
+:root[data-theme="dark"]{--pin:#2fb8a6;--pin-on:#0a1220;--pin-soft:#12332f;--pin-line:#243350;--pin-box:#0d1729}
+html.terkunci,html.terkunci body{overflow:hidden}
+html.terkunci .hero,html.terkunci main{filter:blur(3px);pointer-events:none;user-select:none}
+.pin-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,18,32,.62)}
+.pin-overlay[hidden]{display:none}
+.pin-card{width:100%;max-width:400px;padding:26px 22px 22px;text-align:center;background:var(--surface);color:var(--ink);border-radius:28px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.pin-ikon{display:flex;align-items:center;justify-content:center;width:64px;height:64px;margin:0 auto 18px;border-radius:20px;background:var(--pin-soft);color:var(--pin)}
+.pin-ikon svg{width:28px;height:28px}
+.pin-judul{margin:0 0 6px;font-size:1.55rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.pin-desk{margin:0 0 24px;color:var(--muted);font-size:.95rem}
+.pin-label{margin:0 0 14px;font-weight:800;font-size:.95rem}
+.pin-kotak{display:flex;justify-content:center;gap:8px}
+.pin-kotak input{width:46px;height:58px;padding:0;text-align:center;font:inherit;font-size:1.5rem;font-weight:800;color:var(--ink);background:var(--pin-box);border:2px solid var(--pin-line);border-radius:18px;outline:0;caret-color:var(--pin);transition:border-color .15s,box-shadow .15s}
+.pin-kotak input:focus{border-color:var(--pin);box-shadow:0 0 0 3px color-mix(in srgb,var(--pin) 18%,transparent)}
+.pin-kotak.salah input{border-color:var(--bahaya)}
+.pin-kotak.salah{animation:goyang .35s}
+@keyframes goyang{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@media (prefers-reduced-motion:reduce){.pin-kotak.salah{animation:none}}
+.pin-tampil{display:inline-flex;align-items:center;gap:10px;margin:18px 0 6px;padding:6px 10px;font:inherit;color:var(--muted);background:none;border:0;border-radius:10px;cursor:pointer}
+.pin-tampil svg{width:26px;height:26px}
+.pin-tampil:focus-visible,.pin-masuk:focus-visible{outline:3px solid var(--pin);outline-offset:3px}
+.pin-tampil .mata-tutup{display:none}
+.pin-tampil[aria-pressed="true"] .mata-buka{display:none}
+.pin-tampil[aria-pressed="true"] .mata-tutup{display:block}
+.pin-err{min-height:1.4em;margin:2px 0 8px;color:var(--bahaya);font-size:.9rem;font-weight:600}
+.pin-masuk{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:16px;font:inherit;font-size:1.05rem;font-weight:800;color:var(--pin-on);background:var(--pin);border:0;border-radius:20px;cursor:pointer}
+.pin-masuk svg{width:22px;height:22px}
+.pin-masuk:hover{filter:brightness(1.08)}
+.pin-masuk:disabled{opacity:.6;cursor:not-allowed}
+@media (max-width:380px){.pin-kotak{gap:5px}.pin-kotak input{width:40px;height:52px;border-radius:14px}}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="pin-overlay" id="pin-overlay" role="dialog" aria-modal="true" aria-labelledby="pin-judul" hidden>
+  <form class="pin-card" id="pin-form" autocomplete="off" novalidate>
+    <div class="pin-ikon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5Zm-3 8V6a3 3 0 1 1 6 0v3H9Zm3 4.5a1.8 1.8 0 0 1 1 3.3V18a1 1 0 1 1-2 0v-1.2a1.8 1.8 0 0 1 1-3.3Z"/></svg></div>
+    <h2 class="pin-judul" id="pin-judul">Otentikasi Pengguna</h2>
+    <p class="pin-desk">Silakan login untuk mengakses Source Aplikasi Alfamart</p>
+    <p class="pin-label" id="pin-label">Masukkan kode 6 digit dari Google Authenticator</p>
+    <div class="pin-kotak" id="pin-kotak" role="group" aria-labelledby="pin-label">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 1">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 2">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 3">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 4">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 5">
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" aria-label="Digit 6">
+    </div>
+    <div class="pin-err" id="pin-err" role="alert"></div>
+    <button type="submit" class="pin-masuk" id="pin-masuk" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M3 12h11M10 8l4 4-4 4"/></svg>
+      Masuk
+    </button>
+  </form>
+</div>
+<header class="hero"><div class="wrap">
+  <div class="admin-bar" id="admin-bar"><span class="sesi-waktu" id="sesi-waktu" role="timer" aria-label="Sisa waktu sesi"></span><button type="button" class="abtn" id="btn-logout">Logout</button></div>
+  <h1>Source Aplikasi Alfamart</h1>
+  <p class="sub">Master Aplikasi IT Branch Makassar</p>
+</div></header>
+<main>
+
+  <div role="tablist" aria-label="Kategori" id="tabs-utama">
+    <div class="tabwrap" role="presentation">
+      <button role="tab" id="tab-android" aria-controls="panel-android" aria-selected="true" aria-haspopup="menu" aria-expanded="false">Android<span class="caret" aria-hidden="true">▼</span></button>
+      <div class="dropdown" id="menu-android" role="menu" aria-label="Submenu Android" hidden></div>
+    </div>
+    <div class="tabwrap" role="presentation">
+      <button role="tab" id="tab-dotnet" aria-controls="panel-dotnet" aria-selected="false" tabindex="-1" aria-haspopup="menu" aria-expanded="false">.NET<span class="caret" aria-hidden="true">▼</span></button>
+      <div class="dropdown" id="menu-dotnet" role="menu" aria-label="Submenu .NET" hidden></div>
+    </div>
+    <div class="tabwrap" role="presentation">
+      <button role="tab" id="tab-lainnya" aria-controls="panel-lainnya" aria-selected="false" tabindex="-1" aria-haspopup="menu" aria-expanded="false">Lainnya<span class="caret" aria-hidden="true">▼</span></button>
+      <div class="dropdown" id="menu-lainnya" role="menu" aria-label="Submenu Lainnya" hidden></div>
+    </div>
+  </div>
+
+  <section role="tabpanel" id="panel-android" aria-labelledby="tab-android">
+    <p class="intro">Klik tab Android untuk memilih submenu.</p>
+    <h2 class="subjudul" id="judul-sub">Memuat…</h2>
+  </section>
+
+  <section role="tabpanel" id="panel-dotnet" aria-labelledby="tab-dotnet" hidden>
+    <p class="intro">Klik tab .NET untuk memilih submenu.</p>
+    <h2 class="subjudul">Memuat…</h2>
+  </section>
+
+  <section role="tabpanel" id="panel-lainnya" aria-labelledby="tab-lainnya" hidden>
+    <p class="intro">Klik tab Lainnya untuk memilih submenu.</p>
+    <h2 class="subjudul">Memuat…</h2>
+  </section>
+</main>
+
+<script>
+/* ===== LOGIN OTP GOOGLE AUTHENTICATOR (TOTP) =====
+   Daftarkan di Google Authenticator: "+" > "Masukkan kunci penyiapan"
+   Nama akun: Source Aplikasi Alfamart | Kunci: nilai OTP_SECRET | Jenis: Berbasis waktu.
+   Ganti kunci: isi OTP_SECRET dengan string Base32 baru (huruf A-Z dan angka 2-7, min. 16 karakter),
+   lalu daftarkan ulang di aplikasi. */
+(function(){
+  var OTP_SECRET='4xtrqxba76245zi37m7juhvegvtxs3ol';
+  var N=6,PERIODE=30,JENDELA=1; /* 6 digit, ganti tiap 30 detik, toleransi +/-1 periode */
+  var DURASI=30*60*1000;        /* lama sesi: 30 menit sejak login */
+  var LOGIN_AKTIF=false;         /* true = login OTP wajib | false = login dinonaktifkan, halaman langsung terbuka */
+  var MAKS_SALAH=5,TUNGGU=30000;
+  /* --- TOTP (RFC 6238), tanpa library --- */
+  function b32(s){
+    var A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567',bits='',out=[],i;
+    s=s.replace(/[\s=]+/g,'').toUpperCase();
+    for(i=0;i<s.length;i++)bits+=('00000'+A.indexOf(s.charAt(i)).toString(2)).slice(-5);
+    for(i=0;i+8<=bits.length;i+=8)out.push(parseInt(bits.substr(i,8),2));
+    return out;
+  }
+  function sha1(m){
+    var l=m.length,w=[],i,j,t,h0=0x67452301,h1=0xEFCDAB89,h2=0x98BADCFE,h3=0x10325476,h4=0xC3D2E1F0;
+    m=m.slice();m.push(0x80);
+    while(m.length%64!==56)m.push(0);
+    [Math.floor(l*8/4294967296),(l*8)>>>0].forEach(function(v){m.push((v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255)});
+    for(i=0;i<m.length;i+=64){
+      for(j=0;j<16;j++)w[j]=(m[i+4*j]<<24)|(m[i+4*j+1]<<16)|(m[i+4*j+2]<<8)|m[i+4*j+3];
+      for(j=16;j<80;j++){t=w[j-3]^w[j-8]^w[j-14]^w[j-16];w[j]=(t<<1)|(t>>>31)}
+      var a=h0,b=h1,c=h2,d=h3,e=h4,f,k;
+      for(j=0;j<80;j++){
+        if(j<20){f=(b&c)|(~b&d);k=0x5A827999}
+        else if(j<40){f=b^c^d;k=0x6ED9EBA1}
+        else if(j<60){f=(b&c)|(b&d)|(c&d);k=0x8F1BBCDC}
+        else{f=b^c^d;k=0xCA62C1D6}
+        t=(((a<<5)|(a>>>27))+f+e+k+w[j])|0;
+        e=d;d=c;c=(b<<30)|(b>>>2);b=a;a=t;
+      }
+      h0=(h0+a)|0;h1=(h1+b)|0;h2=(h2+c)|0;h3=(h3+d)|0;h4=(h4+e)|0;
+    }
+    var o=[];[h0,h1,h2,h3,h4].forEach(function(v){o.push((v>>>24)&255,(v>>>16)&255,(v>>>8)&255,v&255)});
+    return o;
+  }
+  function hmac(key,msg){
+    if(key.length>64)key=sha1(key);
+    var ip=[],op=[],i;
+    for(i=0;i<64;i++){var kb=i<key.length?key[i]:0;ip.push(kb^0x36);op.push(kb^0x5c)}
+    return sha1(op.concat(sha1(ip.concat(msg))));
+  }
+  var KEY=b32(OTP_SECRET);
+  function totp(counter){
+    var msg=[0,0,0,0,(counter>>>24)&255,(counter>>>16)&255,(counter>>>8)&255,counter&255];
+    var h=hmac(KEY,msg),o=h[19]&15;
+    var n=(((h[o]&0x7f)<<24)|(h[o+1]<<16)|(h[o+2]<<8)|h[o+3])%1000000;
+    return ('000000'+n).slice(-N);
+  }
+  function cocok(kode){
+    var c=Math.floor(Date.now()/1000/PERIODE),ok=false,d;
+    for(d=-JENDELA;d<=JENDELA;d++)if(totp(c+d)===kode)ok=true;
+    return ok;
+  }
+  /* --- sesi --- */
+  var KUNCI='otp-ok',KEXP='otp-exp';
+  var exp=0,salah=0,tunggu=0;
+  try{if(sessionStorage.getItem(KUNCI)==='1')exp=Number(sessionStorage.getItem(KEXP))||0}catch(e){}
+  function aktif(){return exp>Date.now()}
+  var root=document.documentElement;
+  var ov=document.getElementById('pin-overlay');
+  var form=document.getElementById('pin-form');
+  var kotak=document.getElementById('pin-kotak');
+  var ins=[].slice.call(kotak.querySelectorAll('input'));
+  var err=document.getElementById('pin-err');
+  var masuk=document.getElementById('pin-masuk');
+  var wkt=document.getElementById('sesi-waktu');
+  function nilai(){return ins.map(function(i){return i.value}).join('')}
+  function bersih(){ins.forEach(function(i){i.value=''});masuk.disabled=true;ins[0].focus()}
+  function buka(){
+    root.classList.remove('terkunci');ov.hidden=true;
+    [].forEach.call(document.querySelectorAll('.hero,main'),function(e){e.inert=false});
+  }
+  function kunci(){
+    root.classList.add('terkunci');ov.hidden=false;
+    [].forEach.call(document.querySelectorAll('.hero,main'),function(e){e.inert=true});
+    setTimeout(function(){ins[0].focus()},50);
+  }
+  function render(){
+    if(!aktif()){wkt.textContent='';return}
+    var sisa=Math.max(0,Math.ceil((exp-Date.now())/1000)),m=Math.floor(sisa/60),d=sisa%60;
+    wkt.textContent='Sesi '+(m<10?'0':'')+m+':'+(d<10?'0':'')+d;
+    wkt.classList.toggle('sedikit',sisa<300);
+  }
+  function kirim(){
+    var p=nilai();
+    if(p.length<N)return;
+    var sisaTunggu=Math.ceil((tunggu-Date.now())/1000);
+    if(sisaTunggu>0){
+      err.textContent='Terlalu banyak percobaan. Tunggu '+sisaTunggu+' detik.';bersih();return;
+    }
+    if(cocok(p)){
+      salah=0;exp=Date.now()+DURASI;
+      try{sessionStorage.setItem(KUNCI,'1');sessionStorage.setItem(KEXP,String(exp))}catch(e){}
+      err.textContent='';buka();render();
+    }else{
+      salah++;
+      if(salah>=MAKS_SALAH){salah=0;tunggu=Date.now()+TUNGGU;err.textContent='Terlalu banyak percobaan. Tunggu '+(TUNGGU/1000)+' detik.'}
+      else err.textContent='Kode salah atau kedaluwarsa. Coba lagi.';
+      kotak.classList.remove('salah');void kotak.offsetWidth;kotak.classList.add('salah');
+      bersih();
+    }
+  }
+  ins.forEach(function(inp,i){
+    inp.addEventListener('input',function(){
+      inp.value=inp.value.replace(/\D/g,'').slice(-1);
+      err.textContent='';kotak.classList.remove('salah');
+      if(inp.value&&i<N-1)ins[i+1].focus();
+      masuk.disabled=nilai().length<N;
+      if(nilai().length===N)kirim();
+    });
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Backspace'&&!inp.value&&i>0){ins[i-1].value='';ins[i-1].focus();masuk.disabled=true;e.preventDefault()}
+      else if(e.key==='ArrowLeft'&&i>0){ins[i-1].focus();e.preventDefault()}
+      else if(e.key==='ArrowRight'&&i<N-1){ins[i+1].focus();e.preventDefault()}
+    });
+    inp.addEventListener('focus',function(){inp.select()});
+    inp.addEventListener('paste',function(e){
+      var t=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/\D/g,'').slice(0,N);
+      if(!t)return;
+      e.preventDefault();
+      t.split('').forEach(function(c,k){ins[k].value=c});
+      ins[Math.min(t.length,N-1)].focus();
+      masuk.disabled=t.length<N;
+      if(t.length===N)kirim();
+    });
+  });
+  form.addEventListener('submit',function(e){e.preventDefault();kirim()});
+  /* logout: hapus sesi, kunci halaman, keluarkan juga login admin Google */
+  function keluar(alasan){
+    exp=0;
+    try{sessionStorage.removeItem(KUNCI);sessionStorage.removeItem(KEXP)}catch(e){}
+    document.dispatchEvent(new Event('pin-keluar'));
+    ins.forEach(function(i){i.value=''});
+    masuk.disabled=true;
+    kunci();
+    err.textContent=alasan||'';
+  }
+  document.getElementById('btn-logout').addEventListener('click',function(){keluar('')});
+  /* cek kedaluwarsa tiap detik dan saat tab kembali aktif (timer tab latar bisa tertunda) */
+  function cek(){if(!LOGIN_AKTIF)return;if(ov.hidden&&!aktif())keluar('Sesi berakhir (30 menit). Masukkan kode lagi.');render()}
+  setInterval(cek,1000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')cek()});
+  window.addEventListener('focus',cek);
+  if(!LOGIN_AKTIF){
+    /* login dinonaktifkan: buka halaman, sembunyikan timer sesi & tombol Logout */
+    buka();wkt.hidden=true;document.getElementById('btn-logout').hidden=true;
+  }else if(!aktif())kunci();else render();
+})();
+</script>
+<script>
+(function(){
+  var tabs=[].slice.call(document.querySelectorAll('#tabs-utama [role="tab"]'));
+  var names=['android','dotnet','lainnya'];
+  function show(name,focus){
+    tabs.forEach(function(t){
+      var on=t.id==='tab-'+name;
+      t.setAttribute('aria-selected',on);
+      t.tabIndex=on?0:-1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden=!on;
+      if(on&&focus)t.focus();
+    });
+    document.documentElement.style.setProperty('--accent','var(--'+name+')');
+    closeMenus(name);
+    /* replaceState: tidak menambah riwayat browser dan tidak memicu hashchange */
+    if(location.hash!=='#'+name)history.replaceState(null,'','#'+name);
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){
+      var m=menus[names[i]];
+      if(m){
+        var was=t.getAttribute('aria-selected')==='true';
+        show(names[i]);
+        if(was)m.toggle();else m.open();
+      }else show(names[i]);
+    });
+    t.addEventListener('keydown',function(e){
+      var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(d)show(names[(i+d+names.length)%names.length],true);
+    });
+  });
+  function fromHash(){var h=location.hash.slice(1);show(names.indexOf(h)>-1?h:'android')}
+  window.addEventListener('hashchange',fromHash);
+  var menus={};
+  function closeMenus(except){Object.keys(menus).forEach(function(k){if(k!==except)menus[k].close()})}
+  ['android','dotnet','lainnya'].forEach(function(key){
+    var btn=document.getElementById('tab-'+key);
+    var menu=document.getElementById('menu-'+key);
+    var panel=document.getElementById('panel-'+key);
+    var judul=panel.querySelector('.subjudul');
+    var items=[];
+    var kosong=null;
+    var m=menus[key]={btn:btn,menu:menu,terakhir:0,names:''};
+    /* buka menu = sekaligus cek folder baru di Drive (maks. 1x per 15 detik) */
+    m.open=function(){
+      menu.hidden=false;btn.setAttribute('aria-expanded','true');
+      if(Date.now()-m.terakhir>15000)muatSubmenu(key);
+    };
+    m.close=function(){menu.hidden=true;btn.setAttribute('aria-expanded','false')};
+    m.toggle=function(){if(menu.hidden)m.open();else m.close()};
+    m.jumlah=function(){return items.length};
+    /* muat ulang daftar file pada submenu yang sedang tampil */
+    m.segarkan=function(){items.forEach(function(x){if(x.getAttribute('aria-current')==='true'&&x._ul&&x._ul._muat)x._ul._muat()})};
+    function showSub(b){
+      items.forEach(function(x){
+        var on=x===b;
+        x.setAttribute('aria-current',on);
+        x._panel.hidden=!on;
+      });
+      judul.textContent=b.textContent;
+    }
+    /* bangun ulang submenu dan panel dari daftar nama folder */
+    m.setItems=function(names,root,pesanKosong){
+      var aktif=null;
+      items.forEach(function(x){if(x.getAttribute('aria-current')==='true')aktif=x.textContent});
+      items.forEach(function(x){x._panel.remove()});
+      if(kosong){kosong.remove();kosong=null}
+      menu.textContent='';
+      items=[];
+      kotak=kotak.filter(function(k){return document.body.contains(k.box)});
+      names.forEach(function(nama,i){
+        var b=el('button',null,nama);b.type='button';
+        b.setAttribute('role','menuitem');b.id='sub-'+key+'-'+i;b.setAttribute('aria-current','false');
+        var sp=el('div','subpanel');sp.setAttribute('role','region');sp.setAttribute('aria-labelledby',b.id);sp.hidden=true;
+        var ul=document.createElement('ul');ul.setAttribute('data-folder',root+'/'+nama);
+        sp.appendChild(ul);panel.appendChild(sp);
+        b._panel=sp;b._ul=ul;
+        b.addEventListener('click',function(){showSub(b);m.close();btn.focus()});
+        menu.appendChild(b);items.push(b);
+        siapkanUl(ul);
+      });
+      if(items.length){
+        var pilih=items[0];
+        items.forEach(function(x){if(x.textContent===aktif)pilih=x});
+        showSub(pilih);
+      }else{
+        judul.textContent=btn.firstChild.textContent;
+        var sp2=el('div','subpanel');sp2.setAttribute('role','region');sp2.setAttribute('aria-label',judul.textContent);
+        var ul2=document.createElement('ul');
+        pesan(ul2,pesanKosong||('Belum ada folder di '+root+' pada Google Drive.'));
+        sp2.appendChild(ul2);panel.appendChild(sp2);
+        kosong=sp2;
+      }
+    };
+    btn.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'){e.preventDefault();show(key);m.open();if(items[0])items[0].focus()}
+    });
+    menu.addEventListener('keydown',function(e){
+      var i=items.indexOf(document.activeElement);
+      if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
+      else if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
+      else if(e.key==='Escape'){m.close();btn.focus()}
+    });
+  });
+  document.addEventListener('click',function(e){
+    Object.keys(menus).forEach(function(k){if(!menus[k].btn.parentNode.contains(e.target))menus[k].close()});
+  });
+  /* ===== KONFIGURASI GOOGLE DRIVE ===== */
+  var DRIVE_API_KEY='AIzaSyCiv3xKh7bfCVjj9eYs3mMgk6EWufxfwSY';
+  var DRIVE_ROOT_ID='1ca78lFIox9Ll-jb01-v5oRx7CLAcZYJU';
+  var GOOGLE_CLIENT_ID='264092982948-516m86nb9fg75eb6g4f6c6oielh212rc.apps.googleusercontent.com'; /* untuk fitur unggah (login admin) */
+  /* ======================================================= */
+  var API='https://www.googleapis.com/drive/v3/files';
+  var FOLDER_MIME='application/vnd.google-apps.folder';
+  var cache={};
+  function ukuran(b){
+    if(b>=1073741824)return (b/1073741824).toFixed(1)+' GB';
+    if(b>=1048576)return (b/1048576).toFixed(1)+' MB';
+    return Math.max(1,Math.round(b/1024))+' KB';
+  }
+  function pesan(ul,t){
+    ul.textContent='';
+    var k=document.createElement('li');k.className='kosong';
+    var s=document.createElement('span');s.textContent=t;
+    k.appendChild(s);ul.appendChild(k);
+  }
+  function gd(params){
+    var q=Object.keys(params).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k])}).join('&');
+    return fetch(API+'?'+q+'&key='+encodeURIComponent(DRIVE_API_KEY)).then(function(r){
+      return r.json().catch(function(){return null}).then(function(j){
+        if(!r.ok)throw new Error((j&&j.error&&j.error.message)||('HTTP '+r.status));
+        if(!j)throw new Error('respons dari Google tidak valid');
+        return j;
+      });
+    });
+  }
+  function cariFolder(parent,nama){
+    var k=parent+'/'+nama;
+    if(!cache[k]){
+      cache[k]=gd({
+        q:"'"+parent+"' in parents and name='"+nama.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"' and mimeType='"+FOLDER_MIME+"' and trashed=false",
+        fields:'files(id)',pageSize:1
+      }).then(function(j){
+        if(!j.files.length)throw new Error('folder "'+nama+'" tidak ditemukan di Google Drive');
+        return j.files[0].id;
+      }).catch(function(e){
+        /* jangan simpan hasil gagal, supaya percobaan berikutnya bisa berhasil */
+        delete cache[k];
+        throw e;
+      });
+    }
+    return cache[k];
+  }
+  function idFolder(path){
+    return path.split('/').reduce(function(p,nama){
+      return p.then(function(id){return cariFolder(id,nama)});
+    },Promise.resolve(DRIVE_ROOT_ID));
+  }
+  function bacaDrive(path){
+    return idFolder(path).then(function(id){
+      return gd({
+        q:"'"+id+"' in parents and trashed=false and mimeType!='"+FOLDER_MIME+"'",
+        fields:'files(id,name,size,modifiedTime)',orderBy:'name',pageSize:1000
+      });
+    }).then(function(j){
+      return j.files.filter(function(f){return f.size!==undefined}).map(function(f){
+        var ext=f.name.indexOf('.')>-1?f.name.split('.').pop().toUpperCase():'';
+        return {
+          id:f.id,
+          nama:f.name,
+          ket:[ext,ukuran(+f.size),(f.modifiedTime||'').slice(0,10)].filter(Boolean).join(' \u00b7 '),
+          url:'https://drive.google.com/uc?export=download&id='+encodeURIComponent(f.id)
+        };
+      });
+    });
+  }
+  /* daftar subfolder = daftar submenu; folder baru di Drive otomatis muncul */
+  var SUBMENU={android:'ANDROID',dotnet:'DOTNET',lainnya:'LAINNYA'};
+  function bacaSubfolder(path){
+    return idFolder(path).then(function(id){
+      return gd({
+        q:"'"+id+"' in parents and trashed=false and mimeType='"+FOLDER_MIME+"'",
+        fields:'files(id,name)',orderBy:'name',pageSize:1000
+      });
+    }).then(function(j){return j.files.map(function(f){return f.name})});
+  }
+  function muatSubmenu(key){
+    var m=menus[key],root=SUBMENU[key];
+    m.terakhir=Date.now();
+    bacaSubfolder(root).then(function(n){
+      var tanda=JSON.stringify(n);
+      if(tanda===m.names&&m.jumlah()){m.segarkan();return} /* submenu sama: cukup segarkan daftar file */
+      m.names=tanda;
+      m.setItems(n,root);
+    }).catch(function(e){
+      m.terakhir=0;
+      if(m.jumlah()&&m.names)return; /* simpan daftar lama jika cek ulang gagal */
+      var hint=location.protocol==='file:'?' Buka halaman lewat alamat website (http/https), bukan langsung dari file.':'';
+      m.names='';
+      m.setItems([],root,'Gagal membaca Google Drive: '+e.message+'.'+hint);
+    });
+  }
+  function tampil(ul,path,list){
+    if(!list.length){pesan(ul,'Belum ada file di folder '+path);return}
+    ul.textContent='';
+    list.forEach(function(f){
+      var li=document.createElement('li');li.className='file';
+      var d=document.createElement('div');
+      var n=document.createElement('strong');n.textContent=f.nama;
+      var s=document.createElement('span');s.textContent=f.ket||'';
+      d.appendChild(n);d.appendChild(s);
+      var a=document.createElement('a');a.className='unduh';a.textContent='Unduh';
+      a.href=f.url;a.target='_blank';a.rel='noopener noreferrer';
+      var aksi=document.createElement('div');aksi.className='aksi';
+      var h=document.createElement('button');h.type='button';h.className='hapus';h.textContent='Hapus';
+      h.addEventListener('click',function(){hapusFile(f,h,ul._muat)});
+      aksi.appendChild(a);aksi.appendChild(h);
+      li.appendChild(d);li.appendChild(aksi);ul.appendChild(li);
+    });
+  }
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e}
+  var admin={token:null,exp:0,klien:null};
+  var kotak=[];
+  var bar=document.getElementById('admin-bar');
+  var bLogin=el('button','abtn','Login admin');bLogin.type='button';
+  var lbl=el('span','alabel','Admin');
+  var bKeluar=el('button','abtn','Keluar admin');bKeluar.type='button';
+  var ast=el('div','admin-st');ast.setAttribute('role','status');
+  bar.appendChild(lbl);bar.appendChild(bLogin);bar.appendChild(bKeluar);bar.appendChild(ast);
+  function adaToken(){return !!admin.token&&Date.now()<admin.exp}
+  function setAdmin(on){
+    if(!on){admin.token=null;admin.exp=0}
+    document.documentElement.setAttribute('data-admin',on?'1':'0');
+    kotak.forEach(function(k){k.box.hidden=!on;if(!on)k.form.hidden=true});
+    bLogin.hidden=on;lbl.hidden=!on;bKeluar.hidden=!on;
+  }
+  setAdmin(false);
+  function loginGoogle(){
+    if(!window.google||!google.accounts||!google.accounts.oauth2){ast.textContent='Skrip Google belum termuat. Periksa koneksi internet lalu coba lagi.';return}
+    if(!admin.klien){
+      admin.klien=google.accounts.oauth2.initTokenClient({
+        client_id:GOOGLE_CLIENT_ID,
+        scope:'https://www.googleapis.com/auth/drive',
+        callback:function(r){
+          if(r&&r.access_token){
+            admin.token=r.access_token;admin.exp=Date.now()+(Number(r.expires_in||3600)-60)*1000;
+            ast.textContent='';setAdmin(true);
+          }else ast.textContent='Login Google gagal'+(r&&r.error?': '+r.error:'')+'.';
+        },
+        error_callback:function(e){ast.textContent='Login Google dibatalkan atau gagal'+(e&&e.type?' ('+e.type+')':'')+'.'}
+      });
+    }
+    admin.klien.requestAccessToken();
+  }
+  bLogin.addEventListener('click',loginGoogle);
+  document.addEventListener('pin-keluar',function(){if(!bKeluar.hidden)bKeluar.click()});
+  bKeluar.addEventListener('click',function(){
+    var t=admin.token;setAdmin(false);
+    if(t&&window.google&&google.accounts&&google.accounts.oauth2)google.accounts.oauth2.revoke(t,function(){});
+  });
+  function unggahSatu(file,parentId,onProgress){
+    return new Promise(function(resolve,reject){
+      var x=new XMLHttpRequest();
+      x.open('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name');
+      x.setRequestHeader('Authorization','Bearer '+admin.token);
+      x.setRequestHeader('Content-Type','application/json; charset=UTF-8');
+      x.setRequestHeader('X-Upload-Content-Type',file.type||'application/octet-stream');
+      x.setRequestHeader('X-Upload-Content-Length',String(file.size));
+      x.onload=function(){
+        if(x.status===401){reject(new Error('SESI'));return}
+        if(x.status<200||x.status>=300){
+          var m='HTTP '+x.status;
+          try{m=JSON.parse(x.responseText).error.message}catch(e){}
+          reject(new Error(m));return;
+        }
+        var lokasi=x.getResponseHeader('Location');
+        if(!lokasi){reject(new Error('Google tidak mengirim alamat unggah'));return}
+        var p=new XMLHttpRequest();
+        p.open('PUT',lokasi);
+        p.upload.onprogress=function(e){if(e.lengthComputable)onProgress(e.loaded/e.total)};
+        p.onload=function(){if(p.status>=200&&p.status<300)resolve();else if(p.status===401)reject(new Error('SESI'));else reject(new Error('HTTP '+p.status))};
+        p.onerror=function(){reject(new Error('koneksi terputus saat mengunggah'))};
+        p.send(file);
+      };
+      x.onerror=function(){reject(new Error('tidak bisa menghubungi Google'))};
+      x.send(JSON.stringify({name:file.name,parents:[parentId]}));
+    });
+  }
+  function hapusFile(f,h,muat){
+    if(!adaToken()){setAdmin(false);ast.textContent='Sesi login habis. Klik Login admin lagi.';return}
+    if(!confirm('Pindahkan file "'+f.nama+'" ke tempat sampah Google Drive?'))return;
+    h.disabled=true;
+    fetch('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?supportsAllDrives=true',{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+admin.token,'Content-Type':'application/json'},
+      body:JSON.stringify({trashed:true})
+    }).then(function(r){
+      if(r.status===401){setAdmin(false);throw new Error('Sesi login habis. Klik Login admin lagi.')}
+      if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status))},function(){throw new Error('HTTP '+r.status)});
+      if(muat)muat();
+    }).catch(function(e){alert('Gagal menghapus: '+e.message);h.disabled=false});
+  }
+  function bangunUnggah(ul,path,muat){
+    var box=el('div','unggah');box.hidden=true;
+    var tb=el('button','unggah-btn','Unggah file');tb.type='button';
+    var f=el('div','unggah-form');f.hidden=true;
+    var inp=el('input');inp.type='file';inp.multiple=true;
+    var kirim=el('button','unduh','Kirim');kirim.type='button';
+    var st=el('div','unggah-status');st.setAttribute('role','status');
+    f.appendChild(inp);f.appendChild(kirim);f.appendChild(st);
+    box.appendChild(tb);box.appendChild(f);
+    ul.parentNode.insertBefore(box,ul);
+    kotak.push({box:box,form:f});
+    box.hidden=!adaToken();
+    tb.addEventListener('click',function(){f.hidden=!f.hidden});
+    kirim.addEventListener('click',function(){
+      var files=[].slice.call(inp.files);
+      if(!files.length){st.textContent='Pilih file dulu.';return}
+      if(!adaToken()){setAdmin(false);ast.textContent='Sesi login habis. Klik Login admin lagi.';return}
+      kirim.disabled=true;
+      var sukses=0,gagal=[];
+      idFolder(path).then(function(parentId){
+        return files.reduce(function(p,file,i){
+          return p.then(function(){
+            var label='Mengunggah '+file.name+' ('+(i+1)+'/'+files.length+') ';
+            st.textContent=label+'0%';
+            return unggahSatu(file,parentId,function(r){st.textContent=label+Math.round(r*100)+'%'}).then(function(){sukses++},function(e){
+              if(e.message==='SESI')throw e;
+              gagal.push(file.name+' ('+e.message+')');
+            });
+          });
+        },Promise.resolve());
+      }).then(function(){
+        st.textContent=sukses+' file berhasil diunggah.'+(gagal.length?' Gagal: '+gagal.join('; ')+'.':'');
+        if(sukses){inp.value='';setTimeout(muat,800)}
+      }).catch(function(e){
+        if(e.message==='SESI'){setAdmin(false);ast.textContent='Sesi login habis. Klik Login admin lagi.'}
+        else st.textContent='Gagal: '+e.message+'.';
+      }).then(function(){kirim.disabled=false});
+    });
+  }
+  function siapkanUl(ul){
+    var path=ul.getAttribute('data-folder');
+    function muat(){
+      if(!ul.firstChild)pesan(ul,'Membaca folder '+path+' ...');
+      bacaDrive(path).then(function(l){tampil(ul,path,l)}).catch(function(e){
+        if(ul.querySelector('li.file'))return; /* simpan daftar lama jika segar ulang gagal */
+        var hint=location.protocol==='file:'?' Buka halaman lewat alamat website (http/https), bukan langsung dari file.':'';
+        pesan(ul,'Gagal membaca Google Drive: '+e.message+'.'+hint);
+      });
+    }
+    ul._muat=muat;
+    bangunUnggah(ul,path,muat);
+    muat();
+  }
+  [].forEach.call(document.querySelectorAll('ul[data-folder]'),siapkanUl);
+  Object.keys(SUBMENU).forEach(muatSubmenu);
+  /* cek folder baru lagi saat tab browser kembali dibuka */
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState!=='visible')return;
+    Object.keys(SUBMENU).forEach(function(k){if(Date.now()-menus[k].terakhir>15000)muatSubmenu(k)});
+  });
+  fromHash();
+})();
+</script>
+</body>
+</html>
